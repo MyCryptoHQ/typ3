@@ -1,4 +1,4 @@
-import { generateTxObj, JSONPostParser, JSONErrorHandler } from './jsonUtils';
+import { generateTxObj, JSONPostProcessor, JSONErrorHandler } from './jsonUtils';
 
 const eth_sendRawTransaction = (tx: String) => ({
   method: JsonRpcMethods.eth_sendRawTransaction,
@@ -332,15 +332,16 @@ export const rerouteRPCMethodsHandler = (obj: any) => {
         throw Error(`${propKey} is not an RPC or Node method`);
       }
       if (nodeMethod) {
-        const result = (arg: IRPCRequestObj | string) => nodeMethod(arg);
+        const result = (arg: IRPCRequestObj) => nodeMethod(arg);
         return result;
       } else {
-        return (arg: IRPCRequestObj | string) => {
-          const call = rpcMethod(arg);
+        return (arg: IRPCRequestObj) => {
+          const { txObj, postprocessor, errorHandler } = arg
+          const call = rpcMethod(txObj);
           const rpcObj: IRPCRequestObj = {
             txObj: generateTxObj(call) as any,
-            postprocessor: JSONPostParser(call.parser),
-            errorHandler: JSONErrorHandler(call.errorHandler)
+            postprocessor: JSONPostProcessor(postprocessor),
+            errorHandler: JSONErrorHandler(errorHandler)
           };
           return node.sendRpcRequest(rpcObj);
         };
