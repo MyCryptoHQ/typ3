@@ -2,10 +2,8 @@ export type SendRpcRequest = (request: IRPCRequestObj) => Promise<any>;
 export type SetEndpoint = (endpoint: string) => void;
 export type IEstimateGasObj = Partial<ITransactionObject>;
 export type address = string;
-export type INewBlockFilterLog = string[];
 export type INewPendingTransactionFilterLog = string[];
 export type ITopic = string | null | (string | null)[];
-export type IFilter = INewBlockFilterLog | INewPendingTransactionFilterLog | IEthNewFilterLogPending[] | IEthNewFilterLog[]
 export type IProxiedNode = IAugmentedNode & IProxiedRpcMethods;
 export type IBlockNumber = string | 'earliest' | 'latest' | 'pending';
 
@@ -89,7 +87,7 @@ export interface IBlockObj {
   uncles: string[];
 }
 
-export interface IEthNewFilterLog {
+export interface IFilterLog {
   removed: boolean;
   logIndex: string;
   transactionIndex: string;
@@ -97,19 +95,8 @@ export interface IEthNewFilterLog {
   blockHash: string;
   blockNumber: string;
   address: string;
-  data: string | string[];
-  topics: string[];
-}
-export interface IEthNewFilterLogPending {
-  removed: boolean;
-  logIndex: string;
-  transactionIndex: string | null;
-  transactionHash: string | null;
-  blockHash: string | null;
-  blockNumber: string | null;
-  address: string;
-  data: string | string[];
-  topics: string[];
+  data: Buffer;
+  topics: Buffer[];
 }
 export interface ITransactionReceipt {
   transactionHash: string;
@@ -119,7 +106,7 @@ export interface ITransactionReceipt {
   cumulativeGasUsed: string;
   gasUsed: string;
   contractAddress: string | null;
-  logs: IEthNewFilterLog[];
+  logs: IFilterLog[];
 }
 
 export interface IProxiedRpcMethods {
@@ -160,9 +147,9 @@ export interface IProxiedRpcMethods {
   eth_getBlockByNumber(blocknumber: IBlockNumber, fullTxObj: boolean): Promise<IBlockObj>;
   eth_getTransactionByBlockHashAndIndex(hash: string, transactionIdx: string): Promise<ITransactionObject>;
   eth_getTransactionByBlockNumberAndIndex(blockNum: IBlockNumber, transactionIdx: string): Promise<ITransactionObject>;
-  eth_getFilterChanges(filterId: string, parser?: any, error?: any): Promise<IFilter>;
-  eth_getFilterLogs(filterId: string): Promise<IFilter>;
-  eth_getLogs(filterObj: IFilterOptions): Promise<IFilter>;
+  eth_getFilterChanges(filterId: string, parser?: any, error?: any): Promise<IFilterLog>;
+  eth_getFilterLogs(filterId: string): Promise<IFilterLog>;
+  eth_getLogs(filterObj: IFilterOptions): Promise<IFilterLog>;
   eth_getStorageAt(address: string, positionInStorage: string, blockNumber: IBlockNumber): Promise<string>;
   eth_getTransactionCount(address: string, blockNum?: IBlockNumber): Promise<string>;
   eth_getUncleByBlockHashAndIndex(hash: string, transactionIdx: string): Promise<IBlockObj>;

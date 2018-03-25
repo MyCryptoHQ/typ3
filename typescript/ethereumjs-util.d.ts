@@ -170,6 +170,16 @@ declare module 'ethereumjs-util' {
    */
   export function toUnsigned(num: BN): Buffer;
 
+  /** 
+   * 
+   * @description Creates Keccak hash of the input
+   * @export
+   * @param {(Buffer | Array | String | Number)} a the input data
+   * @param {number} [bits] the SHA width (optional, default 256)
+   * @returns {Buffer}
+  */
+ export function keccak(a: Buffer | string | number | number[], bits?: number): Buffer;
+
   /**
    *
    * @description Creates SHA-3 hash of the input

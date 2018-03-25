@@ -1,12 +1,15 @@
+import { IEventFactory } from './../typings';
 import * as abi from 'ethereumjs-abi';
+import * as ethUtil from 'ethereumjs-util';
 import {
   makeArgHandlers,
   decodeArguments,
   decodeReturnValue,
   encodeArguments,
-  encodeConstructor
+  encodeConstructor,
+  decodeEvent
 } from './components/coders';
-import { IAbiFunction, IFuncOutputMappings, IFunctionFactory, IAugmentedAbiFunction, IAugmentedAbiConstructor, IConstructorFactory, IAbiConstructor, AbiMethodTypes } from '../typings';
+import { IAbiFunction, IFuncOutputMappings, IFunctionFactory, IAugmentedAbiFunction, IAugmentedAbiConstructor, IConstructorFactory, IAbiConstructor, AbiMethodTypes, IAbiEvent, IAugmentedAbiEvent } from '../typings';
 
 /* tslint:disable */
 export const FunctionFactory = (
@@ -66,3 +69,50 @@ export const ConstructorFactory = (
     encodeArguments: (args, byteCode) => encodeConstructor(args, byteCode, augmentedConstructor)
   }
 }
+
+export const EventFactory = (
+  abiEvent: IAbiEvent
+): IEventFactory => {
+  const { inputs, anonymous } = abiEvent
+  const inputNamesIndexed: string[] = [];
+  const inputTypesIndexed: string[] = [];
+  const inputNames: string[] = [];
+  const inputTypes: string[] = [];
+  
+  inputs.forEach((input) => {
+    const {name, type, indexed } = input
+    if(indexed){
+      inputNamesIndexed.push(name);
+      inputTypesIndexed.push(type)
+    } else {
+      inputNames.push(name)
+      inputTypes.push(type)
+    }
+  })
+  const eventSelector = getEventHash(abiEvent);
+  const augmentedEvent: IAugmentedAbiEvent = {
+    abi: abiEvent,
+    derived: {
+      inputNamesIndexed,
+      inputTypesIndexed,
+      inputNames,
+      inputTypes
+    },
+    eventSelector,
+    anonymous
+  }
+  return {
+    type: AbiMethodTypes.event,
+    decodeArguments: log => decodeEvent(log, augmentedEvent)
+  }
+}
+
+const getEventHash = (eventAbi: IAbiEvent) => {
+  const { name, inputs, anonymous } = eventAbi // tslint:disable-next-line
+  const inputNames = inputs.map(({ name }) => name)
+  if(anonymous){
+    return undefined;
+  } else {
+    return ethUtil.keccak(`${name}${inputNames.join(',')}`).toString('hex')
+  }
+} 

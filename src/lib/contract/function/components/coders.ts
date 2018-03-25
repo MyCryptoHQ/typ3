@@ -1,3 +1,5 @@
+import { IFilterLog } from './../../../node/typings';
+import { IAugmentedAbiEvent } from './../../typings';
 import * as abi from 'ethereumjs-abi';
 import {
   parsePostDecodedValue,
@@ -91,3 +93,17 @@ export const decodeReturnValue = (
   };
   return objReduce(retArr, reducer);
 };
+
+export const decodeEvent = (
+  log: IFilterLog,
+  augmentedEvent: IAugmentedAbiEvent
+): IDecode => {
+  const { derived: {inputNamesIndexed, inputTypesIndexed, inputNames, inputTypes}, eventSelector, anonymous } = augmentedEvent
+  const topics: string[] = []
+  let i = anonymous ? 1 : 0
+  inputTypesIndexed.forEach(type => {
+    topics.push(abi.rawDecode([type], log.topics[i++])[0])
+  })
+  const otherArguments = abi.rawDecode(inputTypes, log.data);
+  return [...topics, ...otherArguments]
+}

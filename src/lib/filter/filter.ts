@@ -1,10 +1,10 @@
-import { IFilterOptions, IFilter } from './../node/typings';
+import { IFilterOptions, IFilterLog } from './../node/typings';
 import { IProxiedNode } from '../node';
 import { pollFilter } from './poll'
 
 export interface IFilterObject {
 	stopWatching(): void,
-	get(): Promise<IFilter>,
+	get(): Promise<IFilterLog>,
 	watch(): void
 }
 

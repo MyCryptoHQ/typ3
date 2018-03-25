@@ -1,6 +1,8 @@
+import { IFilterLog } from './../node/typings';
 import { ITransactionObject, IProxiedNode } from '../node';
 export type IAbiBehaviour = IAbiConstructor | IAbiFunction
 export type IFuncOutputMappings = string[];
+export type IBehaviour = IFunctionFactory | IEventFactory
 
 export const ConstructorCall = 'new'  //TODO move this
 
@@ -61,6 +63,9 @@ export interface IO {
   type: string 
 };
 
+export interface IndexedIO extends IO {
+  indexed: boolean
+}
 export interface IFunctionFactory {
   type: AbiMethodTypes.function;
   constant: boolean;
@@ -74,6 +79,11 @@ export interface IConstructorFactory {
   type: AbiMethodTypes.constructor
   paramless: boolean;
   encodeArguments(args: any, byteCode: string | undefined): string;
+}
+
+export interface IEventFactory {
+  type: AbiMethodTypes.event;
+  decodeArguments(log: IFilterLog): IDecode;
 }
 
 export interface IAbiFunction {
@@ -95,6 +105,8 @@ export interface IAbiConstructor {
 export interface IAbiEvent {
   name: string
   type: AbiMethodTypes.event
+  inputs: IndexedIO[]
+  anonymous: boolean
 }
 
 export interface IAugmentedAbiFunction {
@@ -112,13 +124,13 @@ export interface IAugmentedAbiFunction {
 export interface IAugmentedAbiEvent {
   abi: IAbiEvent;
   derived: {
-    inputTypes: string[];
-    outputTypes: string[];
-    inputNames: string[];
-    outputNames: string[];
+    inputNamesIndexed: string[]
+    inputTypesIndexed: string[]
+    inputNames: string[]
+    inputTypes: string[]
   }
-  methodSelector: string
-  argHAndlers: IFuncArgs
+  eventSelector: string | undefined,
+  anonymous: boolean
 }
 
 export interface IAugmentedAbiConstructor {

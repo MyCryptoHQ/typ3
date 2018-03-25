@@ -81,24 +81,24 @@ const ConnectedContract = <T>(
       if (!Object.getOwnPropertyNames(contract).includes(propKey)) {
         return contract[propKey];
       }
-      const contractMethod: IFunctionFactory = contract[propKey];
-      if (!contractMethod) {
+      const contractBehaviour: IFunctionFactory = contract[propKey];
+      if (!contractBehaviour) {
         throw Error(`${propKey} is not a valid contract method`);
       }
-      if (contractMethod.type.toString() === AbiMethodTypes.constructor){
+      if (contractBehaviour.type.toString() === AbiMethodTypes.constructor){
         throw Error('cannot directly invoke constructor or fallback on a deployed instance')
       }
       return (
         userArgs: any[],
         txObj: ITransactionObject
       ) => {
-          const isConstant = contractMethod.constant;
-          const isParamless = contractMethod.paramless;
+          const isConstant = contractBehaviour.constant;
+          const isParamless = contractBehaviour.paramless;
           const mergedTxObj = isParamless
           ? { ...defaultTxObj, ...userArgs }
           : { ...defaultTxObj, ...txObj }
           const methodArgs: any = { //TODO fix issue between ICallTxObj and methodArgs
-            func: contractMethod,
+            func: contractBehaviour,
             node,
             txObj: mergedTxObj,
             userArgs: isParamless ? null : userArgs
