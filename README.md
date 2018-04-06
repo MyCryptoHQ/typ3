@@ -1,5 +1,7 @@
 # Typ3 (Beta)
 
+[![Build Status](https://travis-ci.org/MyCryptoHQ/typ3.svg?branch=master)](https://travis-ci.org/MyCryptoHQ/typ3)
+
 Typ3 provides a toolset that lets you instantiate fully-typed, promise-based contracts, nodes, and filters. Typ3 also exposes several typed RPC functions, and interfaces for working with JSON RPC calls.
 
 ## Getting Started
